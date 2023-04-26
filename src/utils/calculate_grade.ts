@@ -6,7 +6,9 @@
  *
  * Anything that has a type of "undefined" you will need to replace with something.
  */
-import { IUniversityClass } from "../types/api_types";
+import { IUniversityClass, IClassAssignment, IUniversityStudent } from "../types/api_types";
+import { BASE_API_URL, GET_DEFAULT_HEADERS } from ".././globals";
+
 
 /**
  * This function might help you write the function below.
@@ -16,7 +18,7 @@ import { IUniversityClass } from "../types/api_types";
  */
 export async function calculateStudentFinalGrade(
   studentID: string,
-  classAssignments: undefined,
+  classAssignments: IClassAssignment[],
   klass: IUniversityClass
 ): Promise<undefined> {
   return undefined;
@@ -30,6 +32,19 @@ export async function calculateStudentFinalGrade(
  * @param classID The ID of the class for which we want to calculate the final grades
  * @returns Some data structure that has a list of each student and their final grade.
  */
+
+const fetchSomeData = async (prompt: string) => {
+  const url = BASE_API_URL + prompt;
+  const res = await fetch(url, {
+    method: "GET",
+    headers: GET_DEFAULT_HEADERS(),
+  });
+  const json = await res.json();
+  console.log(json);
+  return json;
+};
+
 export async function calcAllFinalGrade(classID: string): Promise<undefined> {
+  
   return undefined;
 }

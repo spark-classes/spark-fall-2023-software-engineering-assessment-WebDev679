@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Grid from "@mui/material/Unstable_Grid2";
-import { Select, Typography } from "@mui/material";
+import { Select, Typography, MenuItem } from "@mui/material";
+import { DataGrid } from '@mui/x-data-grid';
 /**
  * You will find globals from this file useful!
  */
-import {} from "./globals";
+import { BASE_API_URL, GET_DEFAULT_HEADERS } from "./globals";
 import { IUniversityClass } from "./types/api_types";
 
 function App() {
@@ -26,14 +27,32 @@ function App() {
    * You will also need to explore the use of async/await.
    *
    */
-  const fetchSomeData = async () => {
-    const res = await fetch("https://cat-fact.herokuapp.com/facts/", {
+  const fetchSomeData = async (prompt: string) => {
+    const url = BASE_API_URL + prompt;
+    const res = await fetch(url, {
       method: "GET",
+      headers: GET_DEFAULT_HEADERS(),
     });
     const json = await res.json();
     console.log(json);
+    return json;
   };
 
+  const handleChange = (e: any) => {
+    setCurrClassId(e.target.value);
+  }
+
+  useEffect(() => {
+    fetchSomeData("/class/listBySemester/fall2022?buid=U20869212").then((listOfClasses: IUniversityClass[]) => {
+      setClassList(listOfClasses);
+      setCurrClassId(listOfClasses[0].classId);
+    }
+    );
+  }, [])
+
+  console.log(classList);
+  console.log(currClassId);
+  
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
       <Grid container spacing={2} style={{ padding: "1rem" }}>
@@ -47,8 +66,10 @@ function App() {
             Select a class
           </Typography>
           <div style={{ width: "100%" }}>
-            <Select fullWidth={true} label="Class">
-              {/* You'll need to place some code here to generate the list of items in the selection */}
+            <Select fullWidth={true} label="Class" value={currClassId} onChange={handleChange}>
+              {classList.map((item: IUniversityClass) => (
+               <MenuItem key={item.classId} value={item.classId}>{item.title}</MenuItem>
+              ))}
             </Select>
           </div>
         </Grid>

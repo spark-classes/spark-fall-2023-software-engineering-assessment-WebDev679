@@ -6,12 +6,14 @@ import { DataGrid } from '@mui/x-data-grid';
  * You will find globals from this file useful!
  */
 import { BASE_API_URL, GET_DEFAULT_HEADERS } from "./globals";
-import { IUniversityClass } from "./types/api_types";
+import { IFinalGrades, IUniversityClass } from "./types/api_types";
+import {calcAllFinalGrade} from "./utils/calculate_grade";
 
 function App() {
   // You will need to use more of these!
   const [currClassId, setCurrClassId] = useState<string>("");
   const [classList, setClassList] = useState<IUniversityClass[]>([]);
+  const [finalGrades, setFinalGrades] = useState<IFinalGrades[]>([]);
 
   /**
    * This is JUST an example of how you might fetch some data(with a different API).
@@ -28,7 +30,7 @@ function App() {
    *
    */
   const fetchSomeData = async (prompt: string) => {
-    const url = BASE_API_URL + prompt;
+    const url = BASE_API_URL + prompt + "?buid=U20869212";
     const res = await fetch(url, {
       method: "GET",
       headers: GET_DEFAULT_HEADERS(),
@@ -40,10 +42,11 @@ function App() {
 
   const handleChange = (e: any) => {
     setCurrClassId(e.target.value);
+    calcAllFinalGrade(currClassId);
   }
 
   useEffect(() => {
-    fetchSomeData("/class/listBySemester/fall2022?buid=U20869212").then((listOfClasses: IUniversityClass[]) => {
+    fetchSomeData("/class/listBySemester/fall2022").then((listOfClasses: IUniversityClass[]) => {
       setClassList(listOfClasses);
       setCurrClassId(listOfClasses[0].classId);
     }

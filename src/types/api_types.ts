@@ -5,6 +5,10 @@
  * This helps remove confusion between classes and interfaces.
  */
 
+import { AnyAaaaRecord } from "dns";
+import { StringRegexOptions } from "joi";
+import { SuperElementAccessExpression } from "typescript";
+
 /**
  * This represents a class as returned by the API
  */
@@ -30,4 +34,20 @@ export interface IUniversityStudent {
   name: string;
   status: string;
   universityId: string;
+}
+
+export interface IStudentGrades {
+  classId: string;
+  grades: any[];
+  name: string;
+  studentId: string;
+}
+
+export interface IFinalGrades {
+  studentId: string;
+  studentName: string;
+  classId: string;
+  className: string;
+  semester: string;
+  finalGrade: number;
 }

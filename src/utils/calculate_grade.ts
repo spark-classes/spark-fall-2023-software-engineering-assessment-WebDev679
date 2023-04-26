@@ -17,16 +17,17 @@ import { BASE_API_URL, GET_DEFAULT_HEADERS } from ".././globals";
  */
 export async function calculateStudentFinalGrade(
   studentID: string,
-  classAssignments: IClassAssignment[],
+  classAssignments: IClassAssignment[], // an array of IClassAssignment types
   klass: IUniversityClass
 ): Promise<number> {
-  let studentGrades: IStudentGrades = await fetchSomeData(`/student/listGrades/${studentID}/${klass.classId}`);
+  let studentGrades: IStudentGrades = await fetchSomeData(`/student/listGrades/${studentID}/${klass.classId}`); //fetches the grades for a student in a class
   let finalGrade: number = 0;
 
+  // for loop iterates through each of the assignments and finds their weight and then multiplies it with their grade
   for (let assignment of classAssignments){
-    const assId = assignment.assignmentId;
-    const grade = studentGrades.grades[0][assId];
-    finalGrade = finalGrade + (grade*(assignment.weight/100));
+    const assId = assignment.assignmentId; //assignmentId
+    const grade = studentGrades.grades[0][assId]; //grade for that specific assignment
+    finalGrade = finalGrade + (grade*(assignment.weight/100)); //weightted grade added to the final grade
   }
   return finalGrade;
 }
@@ -39,6 +40,7 @@ export async function calculateStudentFinalGrade(
  * @returns Some data structure that has a list of each student and their final grade.
  */
 
+// function to fetch data by inputting the prompt after the BASE_API_URL (excluding the parameters)
 const fetchSomeData = async (prompt: string) => {
   const url = BASE_API_URL + prompt + "?buid=U20869212";
   const res = await fetch(url, {
@@ -51,19 +53,26 @@ const fetchSomeData = async (prompt: string) => {
 };
 
 export async function calcAllFinalGrade(classID: string): Promise<IFinalGrades[]> {
-  let models: Array<IFinalGrades> = [];
-  let listOfStudents: IUniversityStudent[] = await fetchSomeData("/student/findByStatus/enrolled");
-  let kclass: IUniversityClass = await fetchSomeData(`/class/GetById/${classID}`);
-  let listOfAssignments: IClassAssignment[] = await fetchSomeData(`/class/listAssignments/${classID}`);
-  let classStudents: string[] = await fetchSomeData(`/class/listStudents/${classID}`);
-  let model: IFinalGrades;
+  let models: Array<IFinalGrades> = []; // the list of all the final grades for a specific class
+  let listOfStudents: IUniversityStudent[] = await fetchSomeData("/student/findByStatus/enrolled"); //a list of all the students enrolled in the semester
+  let kclass: IUniversityClass = await fetchSomeData(`/class/GetById/${classID}`); //gets the class information with the classId
+  let listOfAssignments: IClassAssignment[] = await fetchSomeData(`/class/listAssignments/${classID}`); //list of assignments (with weight information) of the specific class
+  let classStudents: string[] = await fetchSomeData(`/class/listStudents/${classID}`); // list of student ids of all the students in a class
+  let model: IFinalGrades; // a model for one student's final grade
+
+  // iterating through each of the student enrolled in a semester
   for (let student of listOfStudents){
+    // checking if that student is in the reuqest class
     if (classStudents.includes(student.universityId)){
+      // calculating the grade of the student
     let grade: number = await calculateStudentFinalGrade(student.universityId, listOfAssignments, kclass);
+    // rounding it off to one decimal place
     let roundedGrade = grade.toFixed(1);
+    // making a model with all the information required by the App
     model = {studentId: student.universityId, studentName: student.name, classId: classID, className: kclass.title, semester: kclass.semester, finalGrade: roundedGrade}
+   // adding this model to the final array
     models = [...models, model]
   }
   }
-  return await models;
+  return models;
 }

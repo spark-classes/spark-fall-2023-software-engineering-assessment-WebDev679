@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import Grid from "@mui/material/Unstable_Grid2";
 import { Select, Typography, MenuItem } from "@mui/material";
-import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
 /**
  * You will find globals from this file useful!
  */
-import { BASE_API_URL, GET_DEFAULT_HEADERS } from "./globals";
+import { BASE_API_URL, GET_DEFAULT_HEADERS, MY_BU_ID } from "./globals";
 import { IFinalGrades, IUniversityClass } from "./types/api_types";
 import {calcAllFinalGrade} from "./utils/calculate_grade";
+import {GradeTable} from "./components/GradeTable";
 
 function App() {
   // You will need to use more of these!
@@ -30,8 +30,10 @@ function App() {
    * You will also need to explore the use of async/await.
    *
    */
+
+  // function to fetch data by inputting the prompt after the BASE_API_URL (excluding the parameters)
   const fetchSomeData = async (prompt: string) => {
-    const url = BASE_API_URL + prompt + "?buid=U20869212";
+    const url = BASE_API_URL + prompt + "?buid=" + MY_BU_ID;
     const res = await fetch(url, {
       method: "GET",
       headers: GET_DEFAULT_HEADERS(),
@@ -40,15 +42,20 @@ function App() {
     console.log(json);
     return json;
   };
+
+  // this function is run whenever the dropdown is changed and a new value is selected
   const handleChange = (e: any) => {
-    setIsLoading(true);
+    setIsLoading(true); // loading until the grades are calculated
     setCurrClassId(e.target.value);
+    //call to the the fuction to calculate the grades for the newly selected class
     calcAllFinalGrade(e.target.value).then((model) => {
       setFinalGrades(model);
-      setIsLoading(false)
-    });
+      setIsLoading(false); //loading shoudl stop as grades have been calculated
+    }); 
   }
 
+
+  // this runs at the first render, gets the list of classes for the dropdown and calculates the grades for the class
   useEffect(() => {
     fetchSomeData("/class/listBySemester/fall2022").then((listOfClasses: IUniversityClass[]) => {
       setIsLoading(true);
@@ -57,23 +64,17 @@ function App() {
         setIsLoading(false)
       }); 
       setClassList(listOfClasses);
-      setCurrClassId(listOfClasses[0].classId);     
+      setCurrClassId(listOfClasses[0].classId); //taken as the default value for the currently selected class on the dropdown
     }
     );
   }, [])
 
 
-  const rows: GridRowsProp = finalGrades;
-  console.log(rows);
-  
-  const columns: GridColDef[] = [
-    { field: 'studentId', headerName: 'Student ID', width: 100 },
-    { field: 'studentName', headerName: 'Student Name', width: 100 },
-    { field: 'classId', headerName: 'Class ID', width: 100 },
-    { field: 'className', headerName: 'Class Name', width: 100 },
-    { field: 'semester', headerName: 'Semester', width: 100 },
-    { field: 'finalGrade', headerName: 'Final Grade', width: 100 },
-  ];
+  // props for the GradeTable component
+  const props = {
+    isLoading: isLoading, 
+    finalGrades: finalGrades,
+  }
   
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
@@ -99,9 +100,7 @@ function App() {
           <Typography variant="h4" gutterBottom>
             Final Grades
           </Typography>
-          <div style={{ height: 500, width: '100%' }}>
-          <DataGrid loading = {isLoading} getRowId={(row) => row.studentId} rows={rows} columns={columns} />
-          </div>
+         <GradeTable {...props}></GradeTable>
         </Grid>
       </Grid>
     </div>

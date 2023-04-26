@@ -8,6 +8,8 @@
 import { AnyAaaaRecord } from "dns";
 import { StringRegexOptions } from "joi";
 import { SuperElementAccessExpression } from "typescript";
+import { GridRowsProp, GridColDef } from '@mui/x-data-grid';
+
 
 /**
  * This represents a class as returned by the API
@@ -50,4 +52,9 @@ export interface IFinalGrades {
   className: string;
   semester: string;
   finalGrade: string;
+}
+
+export interface IProps {
+  isLoading: boolean;
+  finalGrades: IFinalGrades[];
 }

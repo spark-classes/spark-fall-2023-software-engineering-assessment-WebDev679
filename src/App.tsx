@@ -14,6 +14,7 @@ function App() {
   const [currClassId, setCurrClassId] = useState<string>("");
   const [classList, setClassList] = useState<IUniversityClass[]>([]);
   const [finalGrades, setFinalGrades] = useState<IFinalGrades[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   /**
    * This is JUST an example of how you might fetch some data(with a different API).
@@ -40,13 +41,21 @@ function App() {
     return json;
   };
   const handleChange = (e: any) => {
+    setIsLoading(true);
     setCurrClassId(e.target.value);
-    calcAllFinalGrade(e.target.value).then((model) => setFinalGrades(model));
+    calcAllFinalGrade(e.target.value).then((model) => {
+      setFinalGrades(model);
+      setIsLoading(false)
+    });
   }
 
   useEffect(() => {
     fetchSomeData("/class/listBySemester/fall2022").then((listOfClasses: IUniversityClass[]) => {
-      calcAllFinalGrade(listOfClasses[0].classId).then((model) => setFinalGrades(model)); 
+      setIsLoading(true);
+      calcAllFinalGrade(listOfClasses[0].classId).then((model) => {
+        setFinalGrades(model);
+        setIsLoading(false)
+      }); 
       setClassList(listOfClasses);
       setCurrClassId(listOfClasses[0].classId);     
     }
@@ -91,7 +100,7 @@ function App() {
             Final Grades
           </Typography>
           <div style={{ height: 500, width: '100%' }}>
-          <DataGrid getRowId={(row) => row.studentId} rows={rows} columns={columns} />
+          <DataGrid loading = {isLoading} getRowId={(row) => row.studentId} rows={rows} columns={columns} />
           </div>
         </Grid>
       </Grid>

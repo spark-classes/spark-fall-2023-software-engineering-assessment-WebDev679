@@ -51,17 +51,19 @@ const fetchSomeData = async (prompt: string) => {
 };
 
 export async function calcAllFinalGrade(classID: string): Promise<IFinalGrades[]> {
-  let models: IFinalGrades[] = [];
+  let models: Array<IFinalGrades> = [];
   let listOfStudents: IUniversityStudent[] = await fetchSomeData("/student/findByStatus/enrolled");
-  let listOfAssignments: IClassAssignment[] = await fetchSomeData(`/class/listAssignments/${classID}`);
   let kclass: IUniversityClass = await fetchSomeData(`/class/GetById/${classID}`);
-  let classStudents: string[] = await fetchSomeData(`/class/listStudents/${classID}`)
-  listOfStudents.map(async (student: IUniversityStudent) => {
+  let listOfAssignments: IClassAssignment[] = await fetchSomeData(`/class/listAssignments/${classID}`);
+  let classStudents: string[] = await fetchSomeData(`/class/listStudents/${classID}`);
+  let model: IFinalGrades;
+  for (let student of listOfStudents){
     if (classStudents.includes(student.universityId)){
     let grade: number = await calculateStudentFinalGrade(student.universityId, listOfAssignments, kclass);
-    let model: IFinalGrades = {studentId: student.universityId, studentName: student.name, classId: classID, className: kclass.title, semester: kclass.semester, finalGrade: grade}
-    models.push(model);
+    let roundedGrade = grade.toFixed(1);
+    model = {studentId: student.universityId, studentName: student.name, classId: classID, className: kclass.title, semester: kclass.semester, finalGrade: roundedGrade}
+    models = [...models, model]
   }
-  })
-  return models;
+  }
+  return await models;
 }

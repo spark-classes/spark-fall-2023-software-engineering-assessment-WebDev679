@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Grid from "@mui/material/Unstable_Grid2";
 import { Select, Typography, MenuItem } from "@mui/material";
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
 /**
  * You will find globals from this file useful!
  */
@@ -39,22 +39,32 @@ function App() {
     console.log(json);
     return json;
   };
-
   const handleChange = (e: any) => {
     setCurrClassId(e.target.value);
-    calcAllFinalGrade(currClassId);
+    calcAllFinalGrade(e.target.value).then((model) => setFinalGrades(model));
   }
 
   useEffect(() => {
     fetchSomeData("/class/listBySemester/fall2022").then((listOfClasses: IUniversityClass[]) => {
+      calcAllFinalGrade(listOfClasses[0].classId).then((model) => setFinalGrades(model)); 
       setClassList(listOfClasses);
-      setCurrClassId(listOfClasses[0].classId);
+      setCurrClassId(listOfClasses[0].classId);     
     }
     );
   }, [])
 
-  console.log(classList);
-  console.log(currClassId);
+
+  const rows: GridRowsProp = finalGrades;
+  console.log(rows);
+  
+  const columns: GridColDef[] = [
+    { field: 'studentId', headerName: 'Student ID', width: 100 },
+    { field: 'studentName', headerName: 'Student Name', width: 100 },
+    { field: 'classId', headerName: 'Class ID', width: 100 },
+    { field: 'className', headerName: 'Class Name', width: 100 },
+    { field: 'semester', headerName: 'Semester', width: 100 },
+    { field: 'finalGrade', headerName: 'Final Grade', width: 100 },
+  ];
   
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
@@ -80,7 +90,9 @@ function App() {
           <Typography variant="h4" gutterBottom>
             Final Grades
           </Typography>
-          <div>Place the grade table here</div>
+          <div style={{ height: 500, width: '100%' }}>
+          <DataGrid getRowId={(row) => row.studentId} rows={rows} columns={columns} />
+          </div>
         </Grid>
       </Grid>
     </div>

@@ -49,5 +49,5 @@ export interface IFinalGrades {
   classId: string;
   className: string;
   semester: string;
-  finalGrade: number;
+  finalGrade: string;
 }

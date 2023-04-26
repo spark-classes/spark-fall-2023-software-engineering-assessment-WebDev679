@@ -5,6 +5,12 @@
  * This helps remove confusion between classes and interfaces.
  */
 
+import { AnyAaaaRecord } from "dns";
+import { StringRegexOptions } from "joi";
+import { SuperElementAccessExpression } from "typescript";
+import { GridRowsProp, GridColDef } from '@mui/x-data-grid';
+
+
 /**
  * This represents a class as returned by the API
  */
@@ -16,4 +22,39 @@ export interface IUniversityClass {
   meetingLocation: string;
   status: string;
   semester: string;
+}
+
+export interface IClassAssignment {
+  assignmentId: string;
+  classId: string;
+  date: string;
+  weight: number;
+}
+
+export interface IUniversityStudent {
+  dateEnrolled: string;
+  name: string;
+  status: string;
+  universityId: string;
+}
+
+export interface IStudentGrades {
+  classId: string;
+  grades: any[];
+  name: string;
+  studentId: string;
+}
+
+export interface IFinalGrades {
+  studentId: string;
+  studentName: string;
+  classId: string;
+  className: string;
+  semester: string;
+  finalGrade: string;
+}
+
+export interface IProps {
+  isLoading: boolean;
+  finalGrades: IFinalGrades[];
 }
